@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">SerialPortDevLab</string>
+    <string-array name="modelsArray">
+        <item>Thermo Scientific PDR 1000</item>
+    </string-array>
 </resources>
