@@ -10,7 +10,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -18,6 +17,8 @@ import android.widget.Toast;
 import com.felhr.usbserial.UsbSerialDevice;
 import com.felhr.usbserial.UsbSerialInterface;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,8 +39,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
-
-
 
     }
 
@@ -77,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
                     int iface = 0;
 
                     if (connection != null){
-                        iniciarConnection(device, connection, iface);
+                        startConnection(device, connection, iface);
                     }
 
 
@@ -94,47 +93,79 @@ public class MainActivity extends AppCompatActivity {
             toastMaker("No Reconoce el USB");
         }
     }
+    /*
+    public void generarValor(String value)
+    {
+        Log.i("Dentro", "Hola");
+        if(ObjetoLeido.equals(""))
+        {
+            if(value.equals("{"))
+            {
+                ObjetoLeido = value;
+            }
 
+        }
+        else
+        {
+            if(value.equals("}"))
+            {
+                ObjetoLeido+=value;
+                enviarDato(ObjetoLeido);
+            }
+            else
+            {
+                ObjetoLeido+=value;
+            }
+        }
+
+    }
+    public void enviarDato(String hexaDecimal)
+    {
+        Log.i("VALOR:", hexaDecimal);
+        ObjetoLeido = "";
+    }*/
     private UsbSerialInterface.UsbReadCallback mCallback = new UsbSerialInterface.UsbReadCallback()
     {
         @Override
         public void onReceivedData(byte[] arg0)
         {
-            toastMaker("Callback!!!!!!");
+            String str = null;
+            str = new String(arg0);
+
+            Log.i("ENTRAMOS AL CALLBACK", ""+ str);
         }
     };
 
-    private void iniciarConnection (UsbDevice device, UsbDeviceConnection connection, int iface){
-        //toastMaker("TEST 1: "+ connection);
+    private void startConnection(UsbDevice device, UsbDeviceConnection connection, int iface){
         UsbSerialDevice serialPort = UsbSerialDevice.createUsbSerialDevice(device, connection, iface);
         if(serialPort != null) {
-            //toastMaker("TEST 2");
             if(serialPort.open()) {
-                serialPort.setBaudRate(115200);
-                toastMaker("TEST 4");
+                serialPort.setBaudRate(4800);
                 serialPort.setDataBits(UsbSerialInterface.DATA_BITS_8);
-                toastMaker("TEST 5");
                 serialPort.setStopBits(UsbSerialInterface.STOP_BITS_1);
-                toastMaker("TEST 6");
                 serialPort.setParity(UsbSerialInterface.PARITY_NONE);
-                toastMaker("TEST 7");
                 serialPort.setFlowControl(UsbSerialInterface.FLOW_CONTROL_OFF);
-                toastMaker("TEST 8");
-                serialPort.read(mCallback);
+                toastMaker("Apretadito");
+                try {
+                    serialPort.read(mCallback);
+                }catch (Exception e){
+                    toastMaker("Error: " + e);
+                }
+
             }else {
-                // Serial port could not be opened, maybe an I/O error or it CDC driver was chosen it does not really fit
+                toastMaker("Serial port could not be opened, maybe an I/O error or it CDC driver was chosen it does not really fit");
             }
         }else{
-            // No driver for given device, even generic CDC driver could not be loaded
+            toastMaker("No driver for given device, even generic CDC driver could not be loaded");
         }
     }
 
 
 
     private void toastMaker(String toastString){
-        Toast toast2 = Toast.makeText(getApplicationContext(), toastString, Toast.LENGTH_SHORT);
+        Toast toast = Toast.makeText(getApplicationContext(), toastString, Toast.LENGTH_SHORT);
         //toast2.setGravity(Gravity.CENTER|Gravity.LEFT,0,0);
-        toast2.show();
+        toast.show();
     }
 
 
