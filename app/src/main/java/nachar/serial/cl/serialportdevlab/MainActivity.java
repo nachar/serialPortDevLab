@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
                     {
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
 
-                        alertDialogBuilder.setMessage("Solicitando Acceso");
+                        alertDialogBuilder.setMessage("Solicitando Acceso al Puerto Serial");
                         AlertDialog alertDialog = alertDialogBuilder.create();
                         alertDialog.show();
                         PendingIntent pi = PendingIntent.getBroadcast(this, 0, new Intent(
@@ -93,47 +93,39 @@ public class MainActivity extends AppCompatActivity {
             toastMaker("No Reconoce el USB");
         }
     }
-    /*
-    public void generarValor(String value)
-    {
-        Log.i("Dentro", "Hola");
-        if(ObjetoLeido.equals(""))
-        {
-            if(value.equals("{"))
-            {
-                ObjetoLeido = value;
-            }
 
-        }
-        else
-        {
-            if(value.equals("}"))
-            {
-                ObjetoLeido+=value;
-                enviarDato(ObjetoLeido);
-            }
-            else
-            {
-                ObjetoLeido+=value;
-            }
-        }
-
-    }
-    public void enviarDato(String hexaDecimal)
-    {
-        Log.i("VALOR:", hexaDecimal);
-        ObjetoLeido = "";
-    }*/
-    private UsbSerialInterface.UsbReadCallback mCallback = new UsbSerialInterface.UsbReadCallback()
-    {
+    private UsbSerialInterface.UsbReadCallback mCallback = new UsbSerialInterface.UsbReadCallback(){
+        private String ObjetoLeido = "";
+        private int count;
         @Override
         public void onReceivedData(byte[] arg0)
         {
             String str = null;
             str = new String(arg0);
 
-            Log.i("ENTRAMOS AL CALLBACK", ""+ str);
+            generarValor(str);
+
+            //Log.i("ENTRAMOS AL CALLBACK", ""+ str);
         }
+
+        public void generarValor(String value){
+            ObjetoLeido += value;
+            if (!value.equals("")){
+                if(ObjetoLeido.contains("}") && !ObjetoLeido.contains("{")){
+                    ObjetoLeido = "";
+                } else if (ObjetoLeido.contains("{") && !ObjetoLeido.contains("}")) {
+
+                } else if (ObjetoLeido.contains("{") && ObjetoLeido.contains("}")){
+                    enviarDato(ObjetoLeido);
+                }
+            }
+
+        }
+        public void enviarDato(String hexaDecimal){
+            Log.i("VALOR:", hexaDecimal);
+            ObjetoLeido = "";
+        }
+
     };
 
     private void startConnection(UsbDevice device, UsbDeviceConnection connection, int iface){
@@ -146,6 +138,7 @@ public class MainActivity extends AppCompatActivity {
                 serialPort.setParity(UsbSerialInterface.PARITY_NONE);
                 serialPort.setFlowControl(UsbSerialInterface.FLOW_CONTROL_OFF);
                 toastMaker("Apretadito");
+
                 try {
                     serialPort.read(mCallback);
                 }catch (Exception e){
