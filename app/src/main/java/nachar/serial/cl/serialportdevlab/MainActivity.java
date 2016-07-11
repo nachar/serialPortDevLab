@@ -113,8 +113,6 @@ public class MainActivity extends AppCompatActivity {
             if (!value.equals("")){
                 if(ObjetoLeido.contains("}") && !ObjetoLeido.contains("{")){
                     ObjetoLeido = "";
-                } else if (ObjetoLeido.contains("{") && !ObjetoLeido.contains("}")) {
-
                 } else if (ObjetoLeido.contains("{") && ObjetoLeido.contains("}")){
                     enviarDato(ObjetoLeido);
                 }
